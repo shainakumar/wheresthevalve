@@ -1,0 +1,46 @@
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix brick: <https://brickschema.org/schema/Brick#> .
+@prefix uva:   <https://uva.edu/schema#> .
+
+uva:WaterDomain a rdfs:Class ;
+  rdfs:label "Water Domain" ;
+  rdfs:comment "Categorizes a water network as Domestic or Emergency/Sprinkler." .
+
+uva:Domestic a uva:WaterDomain ;
+  rdfs:label "Domestic Water" .
+
+uva:EmergencySprinkler a uva:WaterDomain ;
+  rdfs:label "Emergency/Sprinkler Water" .
+
+uva:hasDomain a rdf:Property ;
+  rdfs:label "has domain" ;
+  rdfs:comment "Assigns a valve to a water domain (Domestic or Emergency/Sprinkler)." ;
+  rdfs:domain brick:Valve ;
+  rdfs:range  uva:WaterDomain .
+
+uva:hasNominalDiameter a rdf:Property ;
+  rdfs:label "has nominal diameter" ;
+  rdfs:comment "Nominal pipe/valve diameter (inches)." ;
+  rdfs:domain brick:Valve ;
+  rdfs:range  xsd:decimal .
+
+uva:isNormallyOpen a rdf:Property ;
+  rdfs:label "is normally open" ;
+  rdfs:comment "True if the valve is normally open; false if normally closed." ;
+  rdfs:domain brick:Valve ;
+  rdfs:range  xsd:boolean .
+
+uva:hasPipeDiameter a rdf:Property ;
+  rdfs:label "has pipe diameter" ;
+  rdfs:comment "Physical pipe diameter (inches). Sub-property of hasNominalDiameter for compatibility." ;
+  rdfs:domain brick:Valve ;
+  rdfs:range  xsd:decimal ;
+  rdfs:subPropertyOf uva:hasNominalDiameter .
+
+uva:hasMaximumFlowRate a rdf:Property ;
+  rdfs:label "has maximum flow rate" ;
+  rdfs:comment "Maximum flow rate (e.g., GPM) through a component." ;
+  rdfs:domain brick:Valve ;
+  rdfs:range  xsd:decimal .

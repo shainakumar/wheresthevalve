@@ -1,0 +1,18 @@
+PREFIX brick: <https://brickschema.org/schema/Brick#>
+PREFIX uva:   <https://uva.edu/schema#>
+PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+
+# Inputs: __ROOM__, __DOMAIN__
+SELECT DISTINCT ?valve ?vroom ?dia ?isNO ?vlabel WHERE {
+  VALUES ?leakRoom { __ROOM__ }
+  VALUES ?domain   { __DOMAIN__ }
+
+  ?target a brick:Valve ; brick:hasLocation ?leakRoom .
+  ?target (^brick:feeds)+ ?valve .
+  ?valve uva:hasDomain ?domain .
+
+  OPTIONAL { ?valve brick:hasLocation ?vroom . }
+  OPTIONAL { ?valve uva:hasNominalDiameter ?dia . }
+  OPTIONAL { ?valve uva:isNormallyOpen ?isNO . }
+  OPTIONAL { ?valve rdfs:label ?vlabel . }
+}

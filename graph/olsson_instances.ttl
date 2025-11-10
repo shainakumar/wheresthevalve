@@ -1,0 +1,89 @@
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix brick: <https://brickschema.org/schema/Brick#> .
+@prefix uva:   <https://uva.edu/schema#> .
+@prefix olsson: <olsson:> .
+
+olsson:R1 a brick:Room ; rdfs:label "MainValve" .
+olsson:R2 a brick:Room ; rdfs:label "Zone A1-G1" .
+olsson:R3 a brick:Room ; rdfs:label "Zone A2-G2" .
+olsson:R4 a brick:Room ; rdfs:label "Zone A3-G3" .
+olsson:R5 a brick:Room ; rdfs:label "Zone H1-H3" .
+
+olsson:MainValve a brick:Valve ;
+  rdfs:label "Main Control Valve" ;
+  brick:hasLocation olsson:R1 ;
+  uva:hasDomain uva:EmergencySprinkler ;
+  uva:hasNominalDiameter "2.0"^^xsd:decimal ;
+  uva:isNormallyOpen "true"^^xsd:boolean .
+
+olsson:MV1 a brick:Valve ;
+  rdfs:label "MainValve Shutoff" ;
+  brick:hasLocation olsson:R1 ;
+  uva:hasDomain uva:EmergencySprinkler ;
+  uva:hasNominalDiameter "2.0"^^xsd:decimal ;
+  uva:isNormallyOpen "false"^^xsd:boolean .
+
+olsson:S1  a brick:Valve ; rdfs:label "Sprinkler A1" ;  brick:hasLocation olsson:R2 ; uva:hasDomain uva:EmergencySprinkler ; uva:hasNominalDiameter "0.5"^^xsd:decimal ; uva:isNormallyOpen "true"^^xsd:boolean .
+olsson:S2  a brick:Valve ; rdfs:label "Sprinkler A2" ;  brick:hasLocation olsson:R3 ; uva:hasDomain uva:EmergencySprinkler ; uva:hasNominalDiameter "0.5"^^xsd:decimal ; uva:isNormallyOpen "true"^^xsd:boolean .
+olsson:S3  a brick:Valve ; rdfs:label "Sprinkler A3" ;  brick:hasLocation olsson:R4 ; uva:hasDomain uva:EmergencySprinkler ; uva:hasNominalDiameter "0.5"^^xsd:decimal ; uva:isNormallyOpen "true"^^xsd:boolean .
+olsson:S4  a brick:Valve ; rdfs:label "Sprinkler B1" ;  brick:hasLocation olsson:R2 ; uva:hasDomain uva:EmergencySprinkler ; uva:hasNominalDiameter "0.5"^^xsd:decimal ; uva:isNormallyOpen "true"^^xsd:boolean .
+olsson:S5  a brick:Valve ; rdfs:label "Sprinkler B2" ;  brick:hasLocation olsson:R3 ; uva:hasDomain uva:EmergencySprinkler ; uva:hasNominalDiameter "0.5"^^xsd:decimal ; uva:isNormallyOpen "true"^^xsd:boolean .
+olsson:S6  a brick:Valve ; rdfs:label "Sprinkler B3" ;  brick:hasLocation olsson:R4 ; uva:hasDomain uva:EmergencySprinkler ; uva:hasNominalDiameter "0.5"^^xsd:decimal ; uva:isNormallyOpen "true"^^xsd:boolean .
+olsson:S7  a brick:Valve ; rdfs:label "Sprinkler C1" ;  brick:hasLocation olsson:R2 ; uva:hasDomain uva:EmergencySprinkler ; uva:hasNominalDiameter "0.5"^^xsd:decimal ; uva:isNormallyOpen "true"^^xsd:boolean .
+olsson:S8  a brick:Valve ; rdfs:label "Sprinkler C2" ;  brick:hasLocation olsson:R3 ; uva:hasDomain uva:EmergencySprinkler ; uva:hasNominalDiameter "0.5"^^xsd:decimal ; uva:isNormallyOpen "true"^^xsd:boolean .
+olsson:S9  a brick:Valve ; rdfs:label "Sprinkler C3" ;  brick:hasLocation olsson:R4 ; uva:hasDomain uva:EmergencySprinkler ; uva:hasNominalDiameter "0.5"^^xsd:decimal ; uva:isNormallyOpen "true"^^xsd:boolean .
+olsson:S10 a brick:Valve ; rdfs:label "Sprinkler D1" ;  brick:hasLocation olsson:R2 ; uva:hasDomain uva:EmergencySprinkler ; uva:hasNominalDiameter "0.5"^^xsd:decimal ; uva:isNormallyOpen "true"^^xsd:boolean .
+olsson:S11 a brick:Valve ; rdfs:label "Sprinkler D2" ;  brick:hasLocation olsson:R3 ; uva:hasDomain uva:EmergencySprinkler ; uva:hasNominalDiameter "0.5"^^xsd:decimal ; uva:isNormallyOpen "true"^^xsd:boolean .
+olsson:S12 a brick:Valve ; rdfs:label "Sprinkler D3" ;  brick:hasLocation olsson:R4 ; uva:hasDomain uva:EmergencySprinkler ; uva:hasNominalDiameter "0.5"^^xsd:decimal ; uva:isNormallyOpen "true"^^xsd:boolean .
+olsson:S13 a brick:Valve ; rdfs:label "Sprinkler E1" ;  brick:hasLocation olsson:R2 ; uva:hasDomain uva:EmergencySprinkler ; uva:hasNominalDiameter "0.5"^^xsd:decimal ; uva:isNormallyOpen "true"^^xsd:boolean .
+olsson:S14 a brick:Valve ; rdfs:label "Sprinkler E2" ;  brick:hasLocation olsson:R3 ; uva:hasDomain uva:EmergencySprinkler ; uva:hasNominalDiameter "0.5"^^xsd:decimal ; uva:isNormallyOpen "true"^^xsd:boolean .
+olsson:S15 a brick:Valve ; rdfs:label "Sprinkler E3" ;  brick:hasLocation olsson:R4 ; uva:hasDomain uva:EmergencySprinkler ; uva:hasNominalDiameter "0.5"^^xsd:decimal ; uva:isNormallyOpen "true"^^xsd:boolean .
+olsson:S16 a brick:Valve ; rdfs:label "Sprinkler F1" ;  brick:hasLocation olsson:R2 ; uva:hasDomain uva:EmergencySprinkler ; uva:hasNominalDiameter "0.5"^^xsd:decimal ; uva:isNormallyOpen "true"^^xsd:boolean .
+olsson:S17 a brick:Valve ; rdfs:label "Sprinkler F2" ;  brick:hasLocation olsson:R3 ; uva:hasDomain uva:EmergencySprinkler ; uva:hasNominalDiameter "0.5"^^xsd:decimal ; uva:isNormallyOpen "true"^^xsd:boolean .
+olsson:S18 a brick:Valve ; rdfs:label "Sprinkler F3" ;  brick:hasLocation olsson:R4 ; uva:hasDomain uva:EmergencySprinkler ; uva:hasNominalDiameter "0.5"^^xsd:decimal ; uva:isNormallyOpen "true"^^xsd:boolean .
+olsson:S19 a brick:Valve ; rdfs:label "Sprinkler G1" ;  brick:hasLocation olsson:R2 ; uva:hasDomain uva:EmergencySprinkler ; uva:hasNominalDiameter "0.5"^^xsd:decimal ; uva:isNormallyOpen "true"^^xsd:boolean .
+olsson:VG1 a brick:Valve ; rdfs:label "End Valve G1" ; brick:hasLocation olsson:R2 ; uva:hasDomain uva:EmergencySprinkler ; uva:hasNominalDiameter "0.5"^^xsd:decimal ; uva:isNormallyOpen "false"^^xsd:boolean .
+olsson:S20 a brick:Valve ; rdfs:label "Sprinkler G2" ;  brick:hasLocation olsson:R3 ; uva:hasDomain uva:EmergencySprinkler ; uva:hasNominalDiameter "0.5"^^xsd:decimal ; uva:isNormallyOpen "true"^^xsd:boolean .
+olsson:VG2 a brick:Valve ; rdfs:label "End Valve G2" ; brick:hasLocation olsson:R3 ; uva:hasDomain uva:EmergencySprinkler ; uva:hasNominalDiameter "0.5"^^xsd:decimal ; uva:isNormallyOpen "false"^^xsd:boolean .
+olsson:S21 a brick:Valve ; rdfs:label "Sprinkler G3" ;  brick:hasLocation olsson:R4 ; uva:hasDomain uva:EmergencySprinkler ; uva:hasNominalDiameter "0.5"^^xsd:decimal ; uva:isNormallyOpen "true"^^xsd:boolean .
+olsson:VG3 a brick:Valve ; rdfs:label "End Valve G3" ; brick:hasLocation olsson:R4 ; uva:hasDomain uva:EmergencySprinkler ; uva:hasNominalDiameter "0.5"^^xsd:decimal ; uva:isNormallyOpen "false"^^xsd:boolean .
+olsson:S22 a brick:Valve ; rdfs:label "Sprinkler H1" ;  brick:hasLocation olsson:R5 ; uva:hasDomain uva:EmergencySprinkler ; uva:hasNominalDiameter "1.5"^^xsd:decimal ; uva:isNormallyOpen "true"^^xsd:boolean .
+olsson:S23 a brick:Valve ; rdfs:label "Sprinkler H2" ;  brick:hasLocation olsson:R5 ; uva:hasDomain uva:EmergencySprinkler ; uva:hasNominalDiameter "1.5"^^xsd:decimal ; uva:isNormallyOpen "true"^^xsd:boolean .
+olsson:S24 a brick:Valve ; rdfs:label "Sprinkler H3" ;  brick:hasLocation olsson:R5 ; uva:hasDomain uva:EmergencySprinkler ; uva:hasNominalDiameter "1.5"^^xsd:decimal ; uva:isNormallyOpen "true"^^xsd:boolean .
+olsson:VH3 a brick:Valve ; rdfs:label "End Valve H3" ; brick:hasLocation olsson:R5 ; uva:hasDomain uva:EmergencySprinkler ; uva:hasNominalDiameter "1.5"^^xsd:decimal ; uva:isNormallyOpen "false"^^xsd:boolean .
+
+olsson:MV1       brick:feeds olsson:MainValve .
+
+olsson:MainValve brick:feeds olsson:S22 .
+olsson:MainValve brick:feeds olsson:S23 .
+olsson:MainValve brick:feeds olsson:S24 .
+
+olsson:S22 brick:feeds olsson:S1  .
+olsson:S1  brick:feeds olsson:S4  .
+olsson:S4  brick:feeds olsson:S7  .
+olsson:S7  brick:feeds olsson:S10 .
+olsson:S10 brick:feeds olsson:S13 .
+olsson:S13 brick:feeds olsson:S16 .
+olsson:S16 brick:feeds olsson:S19 .
+olsson:S19 brick:feeds olsson:VG1 .
+
+olsson:S23 brick:feeds olsson:S2  .
+olsson:S2  brick:feeds olsson:S5  .
+olsson:S5  brick:feeds olsson:S8  .
+olsson:S8  brick:feeds olsson:S11 .
+olsson:S11 brick:feeds olsson:S14 .
+olsson:S14 brick:feeds olsson:S17 .
+olsson:S17 brick:feeds olsson:S20 .
+olsson:S20 brick:feeds olsson:VG2 .
+
+olsson:S24 brick:feeds olsson:S3  .
+olsson:S3  brick:feeds olsson:S6  .
+olsson:S6  brick:feeds olsson:S9  .
+olsson:S9  brick:feeds olsson:S12 .
+olsson:S12 brick:feeds olsson:S15 .
+olsson:S15 brick:feeds olsson:S18 .
+olsson:S18 brick:feeds olsson:S21 .
+olsson:S21 brick:feeds olsson:VG3 .
+olsson:S24 brick:feeds olsson:VH3 .

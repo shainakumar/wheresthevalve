@@ -1,0 +1,10 @@
+PREFIX brick: <https://brickschema.org/schema/Brick#>
+PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+
+# Input: __VALVE__
+SELECT DISTINCT ?affected ?aroom ?alabel WHERE {
+  VALUES ?start { __VALVE__ }
+  ?start brick:feeds+ ?affected .
+  OPTIONAL { ?affected brick:hasLocation ?aroom . }
+  OPTIONAL { ?affected rdfs:label ?alabel . }
+}
