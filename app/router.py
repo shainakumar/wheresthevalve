@@ -1,5 +1,5 @@
 from typing import Tuple
-from intent_rules import ParseResult
+from .intent_rules import ParseResult
 
 TEMPLATES = {
     "leak_to_valves": ("queries/leak_to_valves.rq", ("__ROOM__","__DOMAIN__")),

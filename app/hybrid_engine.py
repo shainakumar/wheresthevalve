@@ -1,7 +1,9 @@
-from rdflib import Graph, URIRef
+from rdflib import Graph, URIRef, RDF, RDFS, Namespace
 import networkx as nx
 from collections import defaultdict, deque
 from typing import Dict, List, Tuple
+BRICK = Namespace("https://brickschema.org/schema/Brick#")
+UVA   = Namespace("https://uva.edu/schema#")
 
 class HybridEngine:
     def __init__(self, uva_schema_ttl: str, instances_ttl: str, brick_ttl: str | None = None):
@@ -29,20 +31,33 @@ class HybridEngine:
         hasDia      = URIRef(self.ns["uva"]   + "hasNominalDiameter")
         isNO        = URIRef(self.ns["uva"]   + "isNormallyOpen")
 
+        # 1) Add all valves as nodes with rich attributes
         valves = set(s for (s, p, o) in self.g.triples((None, RDF_T, BRICK_Valve)))
         for v in valves:
+            vid = str(v)
             label = next((str(o) for _s,_p,o in self.g.triples((v, self.RDFS_LABEL, None))), "")
             room  = next((str(o) for _s,_p,o in self.g.triples((v, self.BRICK_HASLOC, None))), "")
-            dom   = next((str(o) for _s,_p,o in self.g.triples((v, hasDomain, None))), "")
-            dia   = next((str(o) for _s,_p,o in self.g.triples((v, hasDia, None))), "")
-            no    = next((str(o) for _s,_p,o in self.g.triples((v, isNO, None))), "")
-            G.add_node(str(v), label=label, room=room, domain=dom,
+            dom   = next((str(o) for _s,_p,o in self.g.triples((v, hasDomain,   None))), "")
+            dia   = next((str(o) for _s,_p,o in self.g.triples((v, hasDia,      None))), "")
+            no    = next((str(o) for _s,_p,o in self.g.triples((v, isNO,        None))), "")
+            G.add_node(vid, label=label, room=room, domain=dom,
                        diameter_in=dia, normally_open=no)
 
+        # 2) Add any extra nodes that appear on feeds edges (e.g., pipe segments)
         for (s, _p, o) in self.g.triples((None, self.BRICK_FEEDS, None)):
-            if str(s) in G and str(o) in G:
-                G.add_edge(str(s), str(o), domain=G.nodes[str(s)].get("domain",""))
+            sid, oid = str(s), str(o)
+
+            # Ensure both endpoints exist as nodes (even if not valves)
+            if sid not in G:
+                G.add_node(sid, label="", room="", domain="", diameter_in="", normally_open="")
+            if oid not in G:
+                G.add_node(oid, label="", room="", domain="", diameter_in="", normally_open="")
+
+            # Edge: s feeds o. We propagate domain from the source if present
+            G.add_edge(sid, oid, domain=G.nodes[sid].get("domain", ""))
+
         return G
+
 
     def _run_query(self, rq_path: str, subs: Dict[str, str]):
         q = open(rq_path, "r", encoding="utf-8").read()
@@ -133,6 +148,125 @@ class HybridEngine:
             if self.nx.nodes.get(vid, {}).get("domain") == domain_iri:
                 seeds.append(vid)
         return seeds
+    
+    def get_pipe_segments_in_room(self, room_iri: str, domain_iri: str):
+        """
+        Return a list of pipe segment nodes in a given room and domain.
+
+        room_iri:  e.g. "olsson:R2"
+        domain_iri: e.g. "https://uva.edu/schema#EmergencySprinkler"
+
+        Returns a list of dicts: { "seg_id": str, "label": str }
+        """
+        g = self.g
+        room = URIRef(room_iri)
+        domain = URIRef(domain_iri)
+
+        segments = []
+
+        for seg in g.subjects(RDF.type, UVA.PipeSegment):
+            # Check location
+            loc = g.value(seg, BRICK.hasLocation)
+            if loc != room:
+                continue
+
+            # Check domain
+            doms = list(g.objects(seg, UVA.hasDomain))
+            if domain not in doms:
+                continue
+
+            label = g.value(seg, RDFS.label)
+            segments.append({
+                "seg_id": str(seg),
+                "label": str(label) if label is not None else str(seg),
+            })
+
+        return segments
+    
+    def find_upstream_isolation_from_seeds(self, domain_iri: str, seed_ids: List[str]):
+        """
+        Branch-specific upstream search:
+        - domain_iri: e.g. "https://uva.edu/schema#EmergencySprinkler"
+        - seed_ids:  list of node IDs (strings) to treat as leak points
+                     (e.g., ["olsson:Top_R2"]).
+
+        Returns a list of valve dicts, sorted by hops:
+          {
+            "hops": int,
+            "valve_id": str,
+            "label": str,
+            "room": str,
+            "domain": str,
+            "diameter_in": str,
+            "normally_open": str,
+          }
+        """
+        # Only keep seeds that exist in the graph
+        seeds = [s for s in seed_ids if s in self.nx]
+        if not seeds:
+            return []
+
+        # Candidates = all valves on this domain
+        candidates = [
+            vid for vid, attrs in self.nx.nodes(data=True)
+            if attrs.get("domain") == domain_iri
+        ]
+
+        # Upstream BFS from the seeds
+        dist = self._bfs(seeds, reverse=True)
+
+        out = []
+        for vid in candidates:
+            if vid in dist and dist[vid] > 0:
+                a = self.nx.nodes[vid]
+                out.append({
+                    "hops": dist[vid],
+                    "valve_id": vid,
+                    "label": a.get("label", ""),
+                    "room": a.get("room", ""),
+                    "domain": a.get("domain", ""),
+                    "diameter_in": a.get("diameter_in", ""),
+                    "normally_open": a.get("normally_open", ""),
+                })
+
+        out.sort(key=lambda r: (r["hops"], r["label"]))
+        return out
+    def find_upstream_isolation_for_segments(self, room_iri: str, domain_iri: str):
+        """
+        Treat each pipe segment in the given room as a potential leak point.
+        For each segment, find its nearest upstream isolation valve(s).
+
+        Returns:
+          segments: list of segments (id + label)
+          per_segment: list of dicts:
+            {
+              "segment_id": ...,
+              "segment_label": ...,
+              "nearest_isolations": [ { valve info } ]
+            }
+        """
+        segments = self.get_pipe_segments_in_room(room_iri, domain_iri)
+        if not segments:
+            return [], []
+
+        per_segment = []
+
+        for seg in segments:
+            sid = seg["seg_id"]
+            label = seg["label"]
+
+            iso_list = self.find_upstream_isolation_from_seeds(
+                domain_iri=domain_iri,
+                seed_ids=[sid],
+            )
+
+            per_segment.append({
+                "segment_id": sid,
+                "segment_label": label,
+                "nearest_isolations": iso_list,
+            })
+
+        return segments, per_segment
 
     def find_upstream_isolation_both(self, leak_room_iri: str, domain_iri: str, max_k_per_head: int = 1):
         """

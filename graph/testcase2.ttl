@@ -1,0 +1,66 @@
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix brick:  <https://brickschema.org/schema/Brick#> .
+@prefix uva:    <https://uva.edu/schema#> .
+@prefix olsson: <https://example.com/olsson#> .
+
+############################################################
+# Single room
+############################################################
+
+olsson:R1 a brick:Room ;
+    rdfs:label "Room with two pipes" .
+
+############################################################
+# Pipe segments in that room (top and bottom lines)
+############################################################
+
+olsson:Top_R1 a uva:PipeSegment ;
+    rdfs:label "Top Pipe in Room" ;
+    brick:hasLocation olsson:R1 ;
+    uva:hasDomain uva:EmergencySprinkler .
+
+olsson:Bottom_R1 a uva:PipeSegment ;
+    rdfs:label "Bottom Pipe in Room" ;
+    brick:hasLocation olsson:R1 ;
+    uva:hasDomain uva:EmergencySprinkler .
+
+############################################################
+# Valves feeding each pipe
+############################################################
+
+olsson:ValveA a brick:Valve ;
+    rdfs:label "Valve A" ;
+    brick:hasLocation olsson:R1 ;  # or a separate corridor space if you want
+    uva:hasDomain uva:EmergencySprinkler .
+
+olsson:ValveB a brick:Valve ;
+    rdfs:label "Valve B" ;
+    brick:hasLocation olsson:R1 ;
+    uva:hasDomain uva:EmergencySprinkler .
+
+############################################################
+# Fixtures at the end of each line
+############################################################
+
+olsson:FixtureA a brick:Valve ;
+    rdfs:label "Fixture A" ;
+    brick:hasLocation olsson:R1 ;
+    uva:hasDomain uva:EmergencySprinkler .
+
+olsson:FixtureB a brick:Valve ;
+    rdfs:label "Fixture B" ;
+    brick:hasLocation olsson:R1 ;
+    uva:hasDomain uva:EmergencySprinkler .
+
+############################################################
+# Topology (no splits, just two straight runs)
+#   ValveA  -> Top_R1    -> FixtureA
+#   ValveB  -> Bottom_R1 -> FixtureB
+############################################################
+
+olsson:ValveA   brick:feeds olsson:Top_R1 .
+olsson:Top_R1   brick:feeds olsson:FixtureA .
+
+olsson:ValveB   brick:feeds olsson:Bottom_R1 .
+olsson:Bottom_R1 brick:feeds olsson:FixtureB .

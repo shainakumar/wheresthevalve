@@ -1,11 +1,10 @@
-from rdflib import Graph
-from hybrid_engine import HybridEngine
-from intent_rules import parse
-from router import build_query
+from .hybrid_engine import HybridEngine
+from .intent_rules import parse
+from .router import build_query
 
 UVA_TTL  = "brick/uva_schema.ttl"
 INST_TTL = "graph/olsson_instances.ttl"
-BRICK_TTL = None  # set to "brick/Brick.ttl" if you want to load full Brick (optional)
+BRICK_TTL = None  # set to "brick/Brick.ttl" for full Brick  
 
 def print_table(rows, cols):
     if not rows: print("(no results)"); return

@@ -1,0 +1,92 @@
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix brick:  <https://brickschema.org/schema/Brick#> .
+@prefix uva:    <https://uva.edu/schema#> .
+@prefix olsson: <https://example.com/olsson#> .
+
+############################################################
+# Room
+############################################################
+
+olsson:L1 a brick:Room ;
+    rdfs:label "Loop Room" .
+
+############################################################
+# Pipe segments in the room
+#
+# Loop_FirstRun   : first time the loop passes through the room
+# Loop_ReturnRun  : second time the loop passes through (coming back)
+# LocalFeed       : independent local feed that also goes to Fixture B
+############################################################
+
+olsson:Loop_FirstRun a uva:PipeSegment ;
+    rdfs:label "Loop Pipe (first ceiling run)" ;
+    brick:hasLocation olsson:L1 ;
+    uva:hasDomain uva:EmergencySprinkler ;
+    uva:hasOrientation "ceiling" .
+
+olsson:Loop_ReturnRun a uva:PipeSegment ;
+    rdfs:label "Loop Pipe (return ceiling run)" ;
+    brick:hasLocation olsson:L1 ;
+    uva:hasDomain uva:EmergencySprinkler ;
+    uva:hasOrientation "ceiling" .
+
+olsson:LocalFeed a uva:PipeSegment ;
+    rdfs:label "Local Feed Pipe" ;
+    brick:hasLocation olsson:L1 ;
+    uva:hasDomain uva:EmergencySprinkler ;
+    uva:hasOrientation "ceiling" .
+
+############################################################
+# Valves
+#   VMain  : main valve for the loop
+#   VLocal : local valve for the independent feed into Fixture B
+############################################################
+
+olsson:VMain a brick:Valve ;
+    rdfs:label "Main Loop Valve" ;
+    brick:hasLocation olsson:L1 ;
+    uva:hasDomain uva:EmergencySprinkler .
+
+olsson:VLocal a brick:Valve ;
+    rdfs:label "Local Valve for Fixture B" ;
+    brick:hasLocation olsson:L1 ;
+    uva:hasDomain uva:EmergencySprinkler .
+
+############################################################
+# Fixtures
+#   FixtureA : fed only by the loop
+#   FixtureB : fed by BOTH the loop (return run) and the local feed
+############################################################
+
+olsson:FixtureA a brick:Valve ;
+    rdfs:label "Fixture A" ;
+    brick:hasLocation olsson:L1 ;
+    uva:hasDomain uva:EmergencySprinkler .
+
+olsson:FixtureB a brick:Valve ;
+    rdfs:label "Fixture B" ;
+    brick:hasLocation olsson:L1 ;
+    uva:hasDomain uva:EmergencySprinkler .
+
+############################################################
+# Topology (brick:feeds)
+#
+#   VMain -> Loop_FirstRun -> FixtureA -> Loop_ReturnRun -> FixtureB
+#   VLocal -> LocalFeed -> FixtureB
+#
+# Visually:
+#   - The loop pipe comes through the room once to Fixture A,
+#     leaves, then comes back and feeds Fixture B via Loop_ReturnRun.
+#   - A separate local feed pipe also supplies Fixture B.
+############################################################
+
+# Loop path
+olsson:VMain          brick:feeds olsson:Loop_FirstRun .
+olsson:Loop_FirstRun  brick:feeds olsson:FixtureA .
+olsson:FixtureA       brick:feeds olsson:Loop_ReturnRun .
+olsson:Loop_ReturnRun brick:feeds olsson:FixtureB .
+
+# Independent local feed into Fixture B
+olsson:VLocal    brick:feeds olsson:LocalFeed .
+olsson:LocalFeed brick:feeds olsson:FixtureB .
