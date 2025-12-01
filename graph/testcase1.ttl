@@ -42,6 +42,10 @@ olsson:Bottom_R2 a uva:PipeSegment ;
 ############################################################
 # Valves A and B (isolation valves upstream of each branch)
 ############################################################
+olsson:MainValve a brick:Valve ;
+    rdfs:label "Main Valve" ;
+    brick:hasLocation olsson:R1 ;
+    uva:hasDomain uva:EmergencySprinkler .
 
 olsson:ValveA a brick:Valve ;
     rdfs:label "Valve A" ;
@@ -69,14 +73,16 @@ olsson:FixtureB a brick:Valve ;
 
 ############################################################
 # Topology via brick:feeds
-# Top branch: ValveA -> Top_R1 -> Top_R2 -> FixtureA
-# Bottom branch: ValveB -> Bottom_R1 -> Bottom_R2 -> FixtureB
+# Top branch:  ValveA -> Top_R1 -> Top_R2 -> FixtureA
+# Bottom branch: Bottom_R1 -> Bottom_R2 ->V Valve B --> FixtureB
 ############################################################
 
+olsson:MainValve    brick:feeds olsson:ValveA.
 olsson:ValveA    brick:feeds olsson:Top_R1 .
 olsson:Top_R1    brick:feeds olsson:Top_R2 .
 olsson:Top_R2    brick:feeds olsson:FixtureA .
 
-olsson:ValveB    brick:feeds olsson:Bottom_R1 .
+olsson:MainValve    brick:feeds olsson:Bottom_R1 .
 olsson:Bottom_R1 brick:feeds olsson:Bottom_R2 .
-olsson:Bottom_R2 brick:feeds olsson:FixtureB .
+olsson:Bottom_R2 brick:feeds olsson:ValveB .
+olsson:ValveB brick:feeds olsson:FixtureB .
