@@ -1,7 +1,7 @@
 from .hybrid_engine import HybridEngine
 
 UVA_TTL   = "brick/uva_schema.ttl"
-BRICK_TTL = None  # or "brick/Brick.ttl" if you want full Brick
+BRICK_TTL = None  # or "brick/Brick.ttl" for full Brick
 
 SCENARIOS = {
     "case1": {
@@ -18,7 +18,7 @@ SCENARIOS = {
     "case2": {
         "instances": "graph/testcase2.ttl",
         "description": "Two parallel pipes through one room; leak on top or bottom line",
-        "leak_node": "https://example.com/olsson#Top_R1",   # leak on top pipe segment
+        "leak_node": "https://example.com/olsson#Top_R1",   
         "room_iri":  "https://example.com/olsson#R1",
         "domain":    "https://uva.edu/schema#EmergencySprinkler",
         "valves_to_check_impacts": [
@@ -29,7 +29,6 @@ SCENARIOS = {
     "case3": {
         "instances": "graph/testcase3.ttl",
         "description": "Looped pipe passes through the room twice; Fixture B also has a second independent feed",
-        # Leak assumed on the loop return run near Fixture B
         "leak_node": "https://example.com/olsson#Loop_ReturnRun",
         "room_iri":  "https://example.com/olsson#L1",
         "domain":    "https://uva.edu/schema#EmergencySprinkler",
