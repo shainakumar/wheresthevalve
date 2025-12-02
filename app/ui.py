@@ -1,11 +1,10 @@
-from rdflib import Graph
-from hybrid_engine import HybridEngine
-from intent_rules import parse
-from router import build_query
+from .hybrid_engine import HybridEngine
+from .intent_rules import parse
+from .router import build_query
 
 UVA_TTL  = "brick/uva_schema.ttl"
 INST_TTL = "graph/olsson_instances.ttl"
-BRICK_TTL = None  # set to "brick/Brick.ttl" if you want to load full Brick (optional)
+BRICK_TTL = None  # set to "brick/Brick.ttl" for full Brick  
 
 def print_table(rows, cols):
     if not rows: print("(no results)"); return
@@ -36,12 +35,12 @@ def main():
         if pr.missing:
             print("I need: " + "; ".join(pr.missing.values())); continue
 
-        _path, _q = build_query(pr)  # proves we’re using SPARQL templates
+        _path, _q = build_query(pr)  
 
         if pr.intent == "leak_to_valves":
             room   = pr.slots.get("room")
             domain = pr.slots["domain"]
-            specific = pr.slots.get("sprinkler")  # if you implemented Option A earlier
+            specific = pr.slots.get("sprinkler") 
 
             if specific:
                 # If the user named an exact head, keep the single-head path:
@@ -50,14 +49,14 @@ def main():
                 print_table(res, ["hops","valve_id","label","room","domain","diameter_in","normally_open"])
                 print()
             else:
-                # ROOM query → show BOTH area-wide and per-head
+                # ROOM query: show BOTH area-wide and per-head 
                 area, per_head = eng.find_upstream_isolation_both(room, domain, max_k_per_head=1)
 
                 print("\nArea-wide recommended isolation valves (fewest hops from any head):")
                 print_table(area, ["hops","valve_id","label","room","domain","diameter_in","normally_open"])
 
                 print("\nPer-head nearest isolation (1 per head):")
-                # Flatten per-head for a tidy table
+                # Flatten per-head 
                 flat = []
                 for h in per_head:
                     head = f"{h['head_label'] or h['head_id']}"

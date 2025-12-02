@@ -44,3 +44,8 @@ uva:hasMaximumFlowRate a rdf:Property ;
   rdfs:comment "Maximum flow rate (e.g., GPM) through a component." ;
   rdfs:domain brick:Valve ;
   rdfs:range  xsd:decimal .
+
+  uva:PipeSegment a rdfs:Class ;
+    rdfs:label "Pipe Segment" ;
+    rdfs:subClassOf brick:Pipe ;
+    rdfs:comment "A short run of pipe, e.g., the section of the top or bottom branch within a room, treated as a possible leak point." .
