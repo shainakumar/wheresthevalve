@@ -33,8 +33,8 @@ SCENARIOS = {
         "room_iri":  "https://example.com/olsson#L1",
         "domain":    "https://uva.edu/schema#EmergencySprinkler",
         "valves_to_check_impacts": [
-            "https://example.com/olsson#VMain",
-            "https://example.com/olsson#VLocal",
+            "https://example.com/olsson#ValveA",
+            "https://example.com/olsson#ValveB"
         ],
     },
 }
