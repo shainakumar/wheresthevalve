@@ -31,7 +31,7 @@ class HybridEngine:
         hasDia      = URIRef(self.ns["uva"]   + "hasNominalDiameter")
         isNO        = URIRef(self.ns["uva"]   + "isNormallyOpen")
 
-        # 1) Add all valves as nodes with rich attributes
+        # add all valves as nodes with attributes
         valves = set(s for (s, p, o) in self.g.triples((None, RDF_T, BRICK_Valve)))
         for v in valves:
             vid = str(v)
@@ -43,17 +43,17 @@ class HybridEngine:
             G.add_node(vid, label=label, room=room, domain=dom,
                        diameter_in=dia, normally_open=no)
 
-        # 2) Add any extra nodes that appear on feeds edges (e.g., pipe segments)
+        # add any extra nodes that appear on feeds edges (pipe segments)
         for (s, _p, o) in self.g.triples((None, self.BRICK_FEEDS, None)):
             sid, oid = str(s), str(o)
 
-            # Ensure both endpoints exist as nodes (even if not valves)
+            # ensure both endpoints exist as nodes
             if sid not in G:
                 G.add_node(sid, label="", room="", domain="", diameter_in="", normally_open="")
             if oid not in G:
                 G.add_node(oid, label="", room="", domain="", diameter_in="", normally_open="")
 
-            # Edge: s feeds o. We propagate domain from the source if present
+            # feeds relationships = edges 
             G.add_edge(sid, oid, domain=G.nodes[sid].get("domain", ""))
 
         return G
@@ -81,7 +81,7 @@ class HybridEngine:
         return dist
 
     def find_upstream_isolation(self, leak_room_iri: str, domain_iri: str) -> List[Dict]:
-        # Seeds = valves in the leak room with the same domain
+        # seeds = valves in the leak room with the same domain
         seeds = []
         for (v,_p,_o) in self.g.triples((None, self.BRICK_HASLOC, URIRef(leak_room_iri))):
             vid = str(v)
