@@ -3,6 +3,8 @@ PREFIX uva:   <https://uva.edu/schema#>
 PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
 
 # Inputs: __ROOM__, __DOMAIN__
+
+# finds all valves upstream of a given room and domain + their metadata 
 SELECT DISTINCT ?valve ?vroom ?dia ?isNO ?vlabel WHERE {
   VALUES ?leakRoom { __ROOM__ }
   VALUES ?domain   { __DOMAIN__ }

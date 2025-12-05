@@ -1,6 +1,9 @@
 from typing import Tuple
 from intent_rules import ParseResult
 
+# loads a SPARQL template based on the parsed intent
+# returns the path to the template and the filled query string 
+
 TEMPLATES = {
     "leak_to_valves": ("queries/leak_to_valves.rq", ("__ROOM__","__DOMAIN__")),
     "impacts":        ("queries/impacts.rq",        ("__VALVE__",)),

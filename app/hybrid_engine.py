@@ -6,6 +6,8 @@ BRICK = Namespace("https://brickschema.org/schema/Brick#")
 UVA   = Namespace("https://uva.edu/schema#")
 
 class HybridEngine:
+
+    # creating the rdf graph with schema and instance data 
     def __init__(self, uva_schema_ttl: str, instances_ttl: str, brick_ttl: str | None = None):
         self.g = Graph()
         if brick_ttl:
@@ -23,6 +25,7 @@ class HybridEngine:
 
         self.nx = self._build_nx()
 
+    # build the networkx directed graph from the rdf graph
     def _build_nx(self) -> nx.DiGraph:
         G = nx.DiGraph()
         RDF_T = URIRef("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")
@@ -58,12 +61,14 @@ class HybridEngine:
 
         return G
 
-
+    # run a parameterized SPARQL query and return results
     def _run_query(self, rq_path: str, subs: Dict[str, str]):
         q = open(rq_path, "r", encoding="utf-8").read()
         for k, v in subs.items(): q = q.replace(k, v)
         return list(self.g.query(q))
+    
 
+    # standard BFS traversal (reverse=True for upstream)
     def _bfs(self, sources: List[str], reverse=False) -> Dict[str,int]:
         dist: Dict[str,int] = {}
         dq = deque()
@@ -80,6 +85,7 @@ class HybridEngine:
                     dq.append(v)
         return dist
 
+    # find upstream isolation valves from a leak in a given room and domain
     def find_upstream_isolation(self, leak_room_iri: str, domain_iri: str) -> List[Dict]:
         # seeds = valves in the leak room with the same domain
         seeds = []
@@ -89,15 +95,18 @@ class HybridEngine:
                 seeds.append(vid)
         if not seeds: return []
 
+        # candidates = all valves on this domain
         rows = self._run_query("queries/leak_to_valves.rq",
                                {"__ROOM__": f"<{leak_room_iri}>", "__DOMAIN__": f"<{domain_iri}>"})
         candidates = set(str(r[0]) for r in rows)
 
         dist = self._bfs(seeds, reverse=True)
         out = []
+        # collect candidates found upstream 
         for vid in candidates:
             if vid in dist and dist[vid] > 0:
                 a = self.nx.nodes[vid]
+                # append valve info 
                 out.append({
                     "hops": dist[vid],
                     "valve_id": vid,
@@ -107,9 +116,11 @@ class HybridEngine:
                     "diameter_in": a.get("diameter_in",""),
                     "normally_open": a.get("normally_open",""),
                 })
+        # sort by hops + label 
         out.sort(key=lambda r: (r["hops"], r["label"]))
         return out
 
+    # find downstream impacts of closing a given valve 
     def find_downstream_impacts(self, valve_iri: str) -> Tuple[List[Dict], List[Dict]]:
         rows = self._run_query("queries/impacts.rq", {"__VALVE__": f"<{valve_iri}>"})
         affected_ids = set(str(r[0]) for r in rows)
@@ -126,7 +137,7 @@ class HybridEngine:
                 "room": a.get("room",""),
                 "domain": a.get("domain",""),
             })
-
+        # summarize impacts
         by_room = defaultdict(int); room_label = {}
         for rec in affected:
             rid = rec["room"]
@@ -134,14 +145,13 @@ class HybridEngine:
             by_room[rid] += 1
             lab = next((str(o) for _s,_p,o in self.g.triples((URIRef(rid), self.RDFS_LABEL, None))), rid)
             room_label[rid] = lab
-
         rooms = [{"room": rid, "label": room_label.get(rid,rid),
                   "count_affected_valves": cnt}
                  for rid, cnt in sorted(by_room.items(), key=lambda t: (-t[1], t[0]))]
         return affected, rooms
     
+    # helper to get all valve/sprinkler seeds in a room for a domain
     def _room_domain_seeds(self, leak_room_iri: str, domain_iri: str) -> list[str]:
-        """All valves in the room with the given domain (used as 'leak endpoints')."""
         seeds = []
         for (v, _, _) in self.g.triples((None, self.BRICK_HASLOC, URIRef(leak_room_iri))):
             vid = str(v)
@@ -149,15 +159,8 @@ class HybridEngine:
                 seeds.append(vid)
         return seeds
     
+    # helper to get all pipe segments in a room for a domain
     def get_pipe_segments_in_room(self, room_iri: str, domain_iri: str):
-        """
-        Return a list of pipe segment nodes in a given room and domain.
-
-        room_iri:  e.g. "olsson:R2"
-        domain_iri: e.g. "https://uva.edu/schema#EmergencySprinkler"
-
-        Returns a list of dicts: { "seg_id": str, "label": str }
-        """
         g = self.g
         room = URIRef(room_iri)
         domain = URIRef(domain_iri)
@@ -165,12 +168,12 @@ class HybridEngine:
         segments = []
 
         for seg in g.subjects(RDF.type, UVA.PipeSegment):
-            # Check location
+            # check location
             loc = g.value(seg, BRICK.hasLocation)
             if loc != room:
                 continue
 
-            # Check domain
+            # check domain
             doms = list(g.objects(seg, UVA.hasDomain))
             if domain not in doms:
                 continue
@@ -183,36 +186,20 @@ class HybridEngine:
 
         return segments
     
+    # find upstream isolation valves starting from given seed IDs
     def find_upstream_isolation_from_seeds(self, domain_iri: str, seed_ids: List[str]):
-        """
-        Branch-specific upstream search:
-        - domain_iri: e.g. "https://uva.edu/schema#EmergencySprinkler"
-        - seed_ids:  list of node IDs (strings) to treat as leak points
-                     (e.g., ["olsson:Top_R2"]).
-
-        Returns a list of valve dicts, sorted by hops:
-          {
-            "hops": int,
-            "valve_id": str,
-            "label": str,
-            "room": str,
-            "domain": str,
-            "diameter_in": str,
-            "normally_open": str,
-          }
-        """
-        # Only keep seeds that exist in the graph
+        # only keep seeds that exist in the graph
         seeds = [s for s in seed_ids if s in self.nx]
         if not seeds:
             return []
 
-        # Candidates = all valves on this domain
+        # candidates = all valves on this domain
         candidates = [
             vid for vid, attrs in self.nx.nodes(data=True)
             if attrs.get("domain") == domain_iri
         ]
 
-        # Upstream BFS from the seeds
+        # upstream BFS from the seeds
         dist = self._bfs(seeds, reverse=True)
 
         out = []
@@ -231,20 +218,9 @@ class HybridEngine:
 
         out.sort(key=lambda r: (r["hops"], r["label"]))
         return out
+    
+    # find upstream isolation valves for each pipe segment in a room
     def find_upstream_isolation_for_segments(self, room_iri: str, domain_iri: str):
-        """
-        Treat each pipe segment in the given room as a potential leak point.
-        For each segment, find its nearest upstream isolation valve(s).
-
-        Returns:
-          segments: list of segments (id + label)
-          per_segment: list of dicts:
-            {
-              "segment_id": ...,
-              "segment_label": ...,
-              "nearest_isolations": [ { valve info } ]
-            }
-        """
         segments = self.get_pipe_segments_in_room(room_iri, domain_iri)
         if not segments:
             return [], []
@@ -268,32 +244,24 @@ class HybridEngine:
 
         return segments, per_segment
 
+    # find both area-wide (for whole room- same logic as find_upstream_isolation()) and per-head upstream isolations
     def find_upstream_isolation_both(self, leak_room_iri: str, domain_iri: str, max_k_per_head: int = 1):
-        """
-        Returns two views:
-        - area_wide:  recommended isolation valves for the whole room (fewest hops first)
-        - per_head:   for each sprinkler/head in the room, its nearest isolation(s)
-
-        area_wide is exactly the same logic as find_upstream_isolation().
-        per_head runs the same candidate selection, but ranked from each individual seed.
-        """
-        # 1) Collect seeds (sprinkler/valve endpoints in the room on that domain)
         seeds = self._room_domain_seeds(leak_room_iri, domain_iri)
         if not seeds:
             return [], []
 
-        # 2) SPARQL: all upstream candidates on the correct domain
+        # all upstream candidates on the correct domain
         rows = self._run_query(
             "queries/leak_to_valves.rq",
             {"__ROOM__": f"<{leak_room_iri}>", "__DOMAIN__": f"<{domain_iri}>"}
         )
         candidates = set(str(r[0]) for r in rows)  # ?valve IRIs
 
-        # 3) AREA-WIDE: multi-source upstream BFS (fewest hops from ANY seed)
+        # area-wide: multi-source upstream BFS (fewest hops from ANY seed)
         dist_multi = self._bfs(seeds, reverse=True)
         area_wide = []
         for vid in candidates:
-            if vid in dist_multi and dist_multi[vid] > 0:  # exclude the seeds (distance 0)
+            if vid in dist_multi and dist_multi[vid] > 0:  
                 a = self.nx.nodes[vid]
                 area_wide.append({
                     "hops": dist_multi[vid],
@@ -306,7 +274,7 @@ class HybridEngine:
                 })
         area_wide.sort(key=lambda r: (r["hops"], r["label"]))
 
-        # 4) PER-HEAD: run single-source BFS for each seed and pick nearest candidate(s)
+        # per-head: run single-source BFS for each seed and pick nearest candidate(s)
         per_head = []
         for seed in seeds:
             dist_seed = self._bfs([seed], reverse=True)
