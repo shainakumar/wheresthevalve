@@ -1,6 +1,7 @@
-from .hybrid_engine import HybridEngine
-from .intent_rules import parse
-from .router import build_query
+from rdflib import Graph
+from hybrid_engine import HybridEngine
+from intent_rules import parse
+from router import build_query
 
 UVA_TTL  = "brick/uva_schema.ttl"
 INST_TTL = "graph/olsson_instances.ttl"
