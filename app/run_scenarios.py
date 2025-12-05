@@ -39,7 +39,7 @@ SCENARIOS = {
     },
 }
 
-
+# run each evaluation test case 
 def run_scenario(name: str, cfg: dict):
     print("=" * 70)
     print(f"SCENARIO: {name}")
@@ -50,7 +50,7 @@ def run_scenario(name: str, cfg: dict):
 
     eng = HybridEngine(UVA_TTL, cfg["instances"], BRICK_TTL)
 
-    # 1) Branch-specific leak: start from a specific segment/node
+    # 1) branch-specific leak: start from a specific segment/node
     upstream = eng.find_upstream_isolation_from_seeds(
         domain_iri=cfg["domain"],
         seed_ids=[cfg["leak_node"]],
@@ -67,7 +67,7 @@ def run_scenario(name: str, cfg: dict):
                 f"label={r['label']}, room={r['room']}"
             )
 
-    # 2) Room-wide leak: treat all pipe segments in the room as possible leak points
+    # 2) room-wide leak: treat all pipe segments in the room as possible leak points
     print("\n[B] Room-level leak (pipe segment unknown)")
     segs, per_seg = eng.find_upstream_isolation_for_segments(
         room_iri=cfg["room_iri"],
@@ -90,7 +90,7 @@ def run_scenario(name: str, cfg: dict):
                 f"in room {iso['room']} (hops={iso['hops']})"
             )
 
-    # 3) Downstream impacts for selected valves
+    # 3) downstream impacts for selected valves
     for vid in cfg["valves_to_check_impacts"]:
         print(f"\n[C] Downstream impacts of closing {vid}:")
         affected, rooms = eng.find_downstream_impacts(vid)

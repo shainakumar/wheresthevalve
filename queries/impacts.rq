@@ -2,6 +2,8 @@ PREFIX brick: <https://brickschema.org/schema/Brick#>
 PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
 
 # Input: __VALVE__
+
+# finds everything downstream/everything a valve feeds + their room and label 
 SELECT DISTINCT ?affected ?aroom ?alabel WHERE {
   VALUES ?start { __VALVE__ }
   ?start brick:feeds+ ?affected .

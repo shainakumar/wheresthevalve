@@ -18,6 +18,7 @@ def print_table(rows, cols):
 def main():
     eng = HybridEngine(UVA_TTL, INST_TTL, BRICK_TTL)
 
+    # provide input examples
     print("Examples:")
     print("  leak in R2 sprinkler")
     print("  impacts of closing olsson:S7")
@@ -36,28 +37,31 @@ def main():
         if pr.missing:
             print("I need: " + "; ".join(pr.missing.values())); continue
 
+        # build the query 
         _path, _q = build_query(pr)  
 
+        # what to shut off when there's a leak
         if pr.intent == "leak_to_valves":
             room   = pr.slots.get("room")
             domain = pr.slots["domain"]
             specific = pr.slots.get("sprinkler") 
 
             if specific:
-                # If the user named an exact head, keep the single-head path:
+                # if the user named an exact head, keep the single-head path/nearest isolation for that head only
                 res = eng.find_upstream_isolation(room, domain, target_valves=[specific])
                 print("\nNearest isolation for the specified head:")
                 print_table(res, ["hops","valve_id","label","room","domain","diameter_in","normally_open"])
                 print()
             else:
-                # ROOM query: show BOTH area-wide and per-head 
+                # if no specific head is mentioned 
+                # area wide isolation (fewest hops from any head) + per-head nearest isolation
                 area, per_head = eng.find_upstream_isolation_both(room, domain, max_k_per_head=1)
 
                 print("\nArea-wide recommended isolation valves (fewest hops from any head):")
                 print_table(area, ["hops","valve_id","label","room","domain","diameter_in","normally_open"])
 
                 print("\nPer-head nearest isolation (1 per head):")
-                # Flatten per-head 
+                # flatten per-head results
                 flat = []
                 for h in per_head:
                     head = f"{h['head_label'] or h['head_id']}"
@@ -74,6 +78,8 @@ def main():
                 else:
                     print("(no per-head isolations found)")
                 print()
+
+        # what gets affected if a valve is closed
         else:
             affected, rooms = eng.find_downstream_impacts(pr.slots["valve"])
             print("\nAffected valves (downstream):")
