@@ -18,6 +18,9 @@ olsson:MainValve a brick:Valve ;
   uva:hasNominalDiameter "2.0"^^xsd:decimal ;
   uva:isNormallyOpen "true"^^xsd:boolean .
 
+# MV1 is the big hose that we see that the front of the building 
+# MainValve is the first big valve that we see at the beginning of the emergency line system 
+
 olsson:MV1 a brick:Valve ;
   rdfs:label "MainValve Shutoff" ;
   brick:hasLocation olsson:R1 ;
@@ -54,36 +57,46 @@ olsson:S23 a brick:Valve ; rdfs:label "Sprinkler H2" ;  brick:hasLocation olsson
 olsson:S24 a brick:Valve ; rdfs:label "Sprinkler H3" ;  brick:hasLocation olsson:R5 ; uva:hasDomain uva:EmergencySprinkler ; uva:hasNominalDiameter "1.5"^^xsd:decimal ; uva:isNormallyOpen "true"^^xsd:boolean .
 olsson:VH3 a brick:Valve ; rdfs:label "End Valve H3" ; brick:hasLocation olsson:R5 ; uva:hasDomain uva:EmergencySprinkler ; uva:hasNominalDiameter "1.5"^^xsd:decimal ; uva:isNormallyOpen "false"^^xsd:boolean .
 
-olsson:MV1       brick:feeds olsson:MainValve .
+olsson:MV1 brick:feeds olsson:MainValve .
 
-olsson:MainValve brick:feeds olsson:S22 .
-olsson:MainValve brick:feeds olsson:S23 .
-olsson:MainValve brick:feeds olsson:S24 .
+olsson:MainValve brick:feeds olsson:VH3 .
+olsson:MainValve brick:feeds olsson:VG1 .
+olsson:MainValve brick:feeds olsson:VG2 .
+olsson:MainValve brick:feeds olsson:VG3 .
 
-olsson:S22 brick:feeds olsson:S1  .
-olsson:S1  brick:feeds olsson:S4  .
-olsson:S4  brick:feeds olsson:S7  .
-olsson:S7  brick:feeds olsson:S10 .
-olsson:S10 brick:feeds olsson:S13 .
-olsson:S13 brick:feeds olsson:S16 .
-olsson:S16 brick:feeds olsson:S19 .
-olsson:S19 brick:feeds olsson:VG1 .
+# The is for the 1st Row  sprinklers (R2)
 
-olsson:S23 brick:feeds olsson:S2  .
-olsson:S2  brick:feeds olsson:S5  .
-olsson:S5  brick:feeds olsson:S8  .
-olsson:S8  brick:feeds olsson:S11 .
-olsson:S11 brick:feeds olsson:S14 .
-olsson:S14 brick:feeds olsson:S17 .
-olsson:S17 brick:feeds olsson:S20 .
-olsson:S20 brick:feeds olsson:VG2 .
+olsson:S4  brick:feeds olsson:S1  .
+olsson:S7  brick:feeds olsson:S4  .
+olsson:S10 brick:feeds olsson:S7  .
+olsson:S13 brick:feeds olsson:S10 .
+olsson:S16 brick:feeds olsson:S13 .
+olsson:S19 brick:feeds olsson:S16 .
+olsson:VG1 brick:feeds olsson:S19 .
 
-olsson:S24 brick:feeds olsson:S3  .
-olsson:S3  brick:feeds olsson:S6  .
-olsson:S6  brick:feeds olsson:S9  .
-olsson:S9  brick:feeds olsson:S12 .
-olsson:S12 brick:feeds olsson:S15 .
-olsson:S15 brick:feeds olsson:S18 .
-olsson:S18 brick:feeds olsson:S21 .
-olsson:S21 brick:feeds olsson:VG3 .
-olsson:S24 brick:feeds olsson:VH3 .
+# The is for the 2nd Row  sprinklers (R3)
+
+olsson:S5  brick:feeds olsson:S2  .
+olsson:S8  brick:feeds olsson:S5  .
+olsson:S11 brick:feeds olsson:S8  .
+olsson:S14 brick:feeds olsson:S11 .
+olsson:S17 brick:feeds olsson:S14 .
+olsson:S20 brick:feeds olsson:S17 .
+olsson:VG2 brick:feeds olsson:S20 .
+
+# The is for the 3rd Row  sprinklers (R4)
+
+olsson:S6  brick:feeds olsson:S3  .
+olsson:S9  brick:feeds olsson:S6  .
+olsson:S12 brick:feeds olsson:S9  .
+olsson:S15 brick:feeds olsson:S12 .
+olsson:S18 brick:feeds olsson:S15 .
+olsson:S21 brick:feeds olsson:S18 .
+olsson:VG3 brick:feeds olsson:S21 .
+
+# The is for the H section sprinklers (R5)
+
+olsson:VH3 brick:feeds olsson:S24 .
+olsson:S24 brick:feeds olsson:S23  .
+olsson:S23 brick:feeds olsson:S22  .
+olsson:S12 brick:feeds olsson:S9  .
